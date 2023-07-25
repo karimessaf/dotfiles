@@ -1,0 +1,125 @@
+# Personal aliases
+# DB
+alias db:m="cd ~/code/hera/api;rake db:migrate"
+alias db:ro="cd ~/code/hera/api;rake db:rollback"
+alias db:r="cd ~/code/hera/api;rake db:drop db:create;gunzip -c 
+~/downloads/dump.gz | psql app_smovin_development; rake db:migrate"
+alias db:rh="cd ~/code/hera/api;rake db:drop db:create db:migrate db:seed 
+db:migrate"
+alias db:svg="cd ~/code/hera/api;pg_dump app_smovin_development | gzip > 
+~/downloads/dump.gz"
+# API
+alias api="cd ~/code/hera/api"
+alias api:s="cd ~/code/hera/api;yarn dev"
+alias api:i="cd ~/code/hera/api;yarn install;bundle install; rake 
+db:migrate;yarn dev"
+alias api:m="cd ~/code/hera/api;rake db:migrate;yarn dev"
+alias api:r="cd ~/code/hera/api;rake db:drop db:create;gunzip -c 
+~/downloads/dump.gz | psql app_smovin_development; rake db:migrate;yarn 
+dev"
+alias api:rh="cd ~/code/hera/api;rake db:drop db:create db:migrate db:seed 
+db:migrate;yarn dev"
+alias api:k="fuser -k 8080/tcp"
+# WEB
+alias web="cd ~/code/hera/web"
+alias web:s="cd ~/code/hera/web;yarn dev"
+alias web:i="cd ~/code/hera/web;yarn install;yarn dev"
+# GIT
+alias g:rs="git reset --soft HEAD~1"
+alias gr:u="git remote update origin --prune"
+# MISC
+alias red="cd ~/code/hera/api;redis-server"
+alias open="explorer.exe"
+alias rls="cd ~/code/hera/api;rails c"
+
+# Get External IP / local IPs
+alias ip="curl ipinfo.io/ip"
+alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
+alias speedtest="wget -O 
+/dev/nullhttp://speedtest.wdc01.softlayer.com/downloads/test10.zip"
+alias openports="lsof -nP +c 15 | grep LISTEN"
+
+# Type quit to exit the terminal
+alias quit="exit"
+
+# git aliases
+alias gpm="git pull origin master"
+alias gst="git status"
+alias gd="git diff"
+alias gcm="git checkout master"
+alias gcb="git checkout -b"
+alias gc="git checkout"
+alias gco="git checkout"
+alias gcmsg="git commit -m"
+alias gaa="git add ."
+alias grsoft="git reset --soft HEAD~1"
+alias gmc="git reset --merge"
+
+gps() {
+  git push origin $(git branch | grep \* | cut -d ' ' -f2-)
+}
+gpl() {
+  git pull origin $(git branch | grep \* | cut -d ' ' -f2-)
+}
+upload() {
+  if [ $# -eq 0 ]; then echo -e "No arguments specified. Usage:\necho 
+upload /path/to/file.md"; return 1; fi
+  curl --progress-bar --upload-file 
+"$1"https://upload.express/upload/$(basename $1) | tee /dev/null
+}
+co() {
+  if [ -f "$(basename "$PWD")".code-workspace ]; then
+    code "$(basename "$PWD")".code-workspace
+  else
+    code .
+  fi
+}
+
+
+alias t="tree -I '.git|node_modules|bower_components|.DS_Store' 
+--dirsfirst"
+
+# NVM
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" 
+|| printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local node_version="$(nvm version)"
+  local nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$node_version" ]; then
+      nvm use
+    fi
+  elif [ "$node_version" != "$(nvm version default)" ]; then
+    echo "Reverting to nvm default version"
+    nvm use default
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
+
+# RBENV
+function chpwd {
+  # Check if a .ruby-version file exists
+  if [[ -f "$PWD/.ruby-version" ]]; then
+    ruby_version=`cat .ruby-version`
+    if [[ ! -d "$HOME/.rbenv/versions/$ruby_version" ]]; then
+      while true; do
+        read REPLY\?"Ruby $ruby_version is not installed. Install it? [Yn] 
+"
+        case $REPLY in
+          [Yy]* ) rbenv install $ruby_version; break;;
+          [Nn]* ) break;;
+          * ) echo "Please answer y or n.";;
+        esac
+      done
+    fi
+  fi
+}
